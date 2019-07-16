@@ -26,7 +26,9 @@ Configure the remote for the 3scale toolbox.
 3scale remote add $REMOTE_NAME https://$TOKEN@$TENANT.3scale.net/
 ```
 
-# Import OpenAPI specification
+# Configuring 3scale APIcast
+
+## Import OpenAPI specification
 
 The first step is about creating a new service/API in the API manager importing the HTTP - Kafka bridge OpenAPI v2 specification directly.
 
@@ -51,7 +53,7 @@ In order to make further configuration, using the 3scale toolbox or an HTTP clie
 export SERVICE_ID=$(curl -s -X GET "https://$TENANT.3scale.net/admin/api/services.json?access_token=$TOKEN" | jq ".services[] | select(.service.system_name | contains(\"$SYSTEM_NAME\")) | .service.id")
 ```
 
-# Configuring the 3scale APIcast
+## Configuring the 3scale APIcast
 
 First of all it's needed to change the deployment mode of the APIcast as "self-managed" because the gateway itself will be installed in an OpenShift cluster and will not be provided by the 3scale portal.
 
@@ -59,7 +61,7 @@ First of all it's needed to change the deployment mode of the APIcast as "self-m
 3scale service apply $REMOTE_NAME $SERVICE_ID -d self_managed
 ```
 
-# Adding policies chain
+## Adding policies chain
 
 In order to have the 3scale APIcast working with the bridge there are a few policies that has to be configured available in the `policies_config.json` file.
 
@@ -67,13 +69,25 @@ In order to have the 3scale APIcast working with the bridge there are a few poli
 curl -X PUT "https://$TENANT.3scale.net/admin/api/services/$SERVICE_ID/proxy/policies.json" --data "access_token=$TOKEN" --data-urlencode policies_config@policies_config.json
 ```
 
-# Promote to production
+## Promote to production
 
 The 3scale APIcast configuration has to be promoted to production environment to be used by the gateway itself.
 
 ```shell
 3scale proxy-config promote $REMOTE_NAME $SERVICE_ID
 ```
+
+# Deploying 3scale APIcast on OpenShift
+
+TBD
+
+# Adding TLS support
+
+TBD
+
+# Adding authentication
+
+TBD
 
 # Remove
 

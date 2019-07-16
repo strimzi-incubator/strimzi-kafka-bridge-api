@@ -1,0 +1,118 @@
+[
+    {
+        "name": "default_credentials",
+        "version": "builtin",
+        "configuration": {
+            "auth_type": "user_key",
+            "user_key": "83009ff737e5d800a32044e23f46ebe7"
+        },
+        "enabled": false
+    },
+    {
+        "name": "headers",
+        "version": "builtin",
+        "configuration": {
+            "request": [
+                {
+                    "op": "set",
+                    "header": "X-Forwarded-Host",
+                    "value_type": "liquid",
+                    "value": "{{ host }}:{{ server_port }}"
+                },
+                {
+                    "op": "set",
+                    "header": "X-Forwarded-Proto",
+                    "value_type": "liquid",
+                    "value": "{{ scheme }}"
+                },
+                {
+                    "op": "set",
+                    "header": "Forwarded",
+                    "value_type": "liquid",
+                    "value": "host={{ host }}:{{ server_port }};proto={{ scheme }}"
+                },
+                {
+                    "op": "set",
+                    "header": "X-Forwarded-Path",
+                    "value_type": "liquid",
+                    "value": "{{ uri }}"
+                }
+            ]
+        },
+        "enabled": true
+    },
+    {
+        "name": "routing",
+        "version": "builtin",
+        "configuration": {
+            "rules": [
+                {
+                    "url": "http://my-bridge-1-bridge-service:8080",
+                    "condition": {
+                        "combine_op": "and",
+                        "operations": [
+                            {
+                                "op": "matches",
+                                "value": ".*\\/my-bridge-1",
+                                "value_type": "plain",
+                                "match": "header",
+                                "header_name": "X-Forwarded-Path"
+                            }
+                        ]
+                    }
+                },
+                {
+                    "condition": {
+                        "combine_op": "and",
+                        "operations": [
+                            {
+                                "match": "header",
+                                "op": "matches",
+                                "value": ".*\\/my-bridge-2",
+                                "value_type": "plain",
+                                "header_name": "X-Forwarded-Path"
+                            }
+                        ]
+                    },
+                    "url": "http://my-bridge-2-bridge-service:8080"
+                },
+                {
+                    "condition": {
+                        "combine_op": "and",
+                        "operations": [
+                            {
+                                "match": "header",
+                                "op": "matches",
+                                "value": ".*\\/my-bridge-3",
+                                "value_type": "plain",
+                                "header_name": "X-Forwarded-Path"
+                            }
+                        ]
+                    },
+                    "url": "http://my-bridge-3-bridge-service:8080"
+                }
+            ]
+        },
+        "enabled": true
+    },
+    {
+        "name": "url_rewriting",
+        "version": "builtin",
+        "configuration": {
+            "commands": [
+                {
+                    "op": "sub",
+                    "regex": "^/my-bridge-[0-9]+/",
+                    "replace": "/"
+                }
+            ]
+        },
+        "enabled": true
+    },
+    {
+        "name": "apicast",
+        "version": "builtin",
+        "configuration": {},
+        "enabled": true
+    }
+]

@@ -79,7 +79,56 @@ The 3scale APIcast configuration has to be promoted to production environment to
 
 # Deploying 3scale APIcast on OpenShift
 
-TBD
+## Gateway deployment
+
+In order to deploy the 3scale APIcast on the OpenShift cluster, it's possible to use an available `Template`.
+Because the gateway has to connect to the API manager in order to get the configuration, the first step is to create a `Secret` containing the portal endpoint.
+
+```shell
+oc create secret generic apicast-configuration-url-secret --from-literal=password=https://$TOKEN@$TENANT.3scale.net
+```
+
+Then the gateway can be deployed using the following `Template`.
+
+```shell
+oc new-app -f https://raw.githubusercontent.com/3scale/apicast/master/openshift/apicast-template.yml
+```
+
+Finally, in order to access the 3scale APIcast from outside the cluster, it's needed to expose it through a `Route`.
+
+```shell
+oc expose svc/apicast --name=apicast
+```
+
+## Updating 3scale APIcast configuration
+
+The exposed route has to be set as the staging and production public base URL in the 3scale APIcast configuration on the API manager.
+First of all, get the route.
+
+```shell
+export APICAST_ROUTE=$(oc get routes apicast -o=jsonpath='{.status.ingress[0].host}{"\n"}')
+```
+
+Then do an HTTP call to the API management for setting them.
+
+```shell
+curl -X PUT "https://$TENANT.3scale.net/admin/api/services/$SERVICE_ID/proxy.json" --data "access_token=$TOKEN" --data "endpoint=http://$APICAST_ROUTE:80" --data "sandbox_endpoint=http://$APICAST_ROUTE:80"
+```
+
+The 3scale APIcast configuration has to be promoted to production environment to be used by the gateway itself.
+
+```shell
+3scale proxy-config promote $REMOTE_NAME $SERVICE_ID
+```
+
+At this point the 3scale gateway Pod should be restarted to get the new configuration as default parameters from the template.
+
+```shell
+oc scale --replicas=0 deploymentconfig/apicast
+oc scale --replicas=2 deploymentconfig/apicast
+```
+
+Instead, it's possible to change `APICAST_CONFIGURATION_CACHE` and `APICAST_CONFIGURATION_LOADER` parameter in order to specify the policy applied by the gateway to update the configuration.
 
 # Adding TLS support
 

@@ -169,8 +169,26 @@ Finally, doing "Updating 3scale APIcast configuration" is still needed to update
 The first thing to do is enabling the authentication mode to use through the 3scale toolbox updating the service.
 The `-a` parameter (authentication mode) allows to do that with `1` for API key, `2` for App Id / App Key, `oidc` for OpenID Connect).
 
+For example, in this case we can use the API Key authentication mode to enable with the following command.
+
 ```shell
 3scale service apply $REMOTE_NAME $SERVICE_ID -a 1
+```
+
+Another way to do it is to update the OpenAPI specification before importing it into 3scale API management system, adding the following snippet defining "security".
+
+```json
+"securityDefinitions" : {
+    "apikey" : {
+        "type" : "apiKey",
+        "description" : "Use a 3scale API Key",
+        "name" : "api-key",
+        "in" : "query"
+    }
+},
+"security" : [ {
+    "apikey" : [ ]
+} ]
 ```
 
 # Remove

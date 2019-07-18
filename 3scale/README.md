@@ -141,7 +141,28 @@ Instead, it's possible to change `APICAST_CONFIGURATION_CACHE` and `APICAST_CONF
 
 # Adding TLS support
 
-TBD
+In order to provide encrypted connection (based on TLS) between the HTTP clients and the 3scale gateway, first of all the public certificate and the related private key for the gateway itself are needed.
+
+First of all, create the `Secret`(s) containing certificate and key.
+Following the command to create such a `Secret`(s) using certificate and key provided as an example.
+
+```shell
+oc create secret generic apicast-cert --from-file=gateway.crt=certs/gateway.crt
+oc create secret generic apicast-key --from-file=gateway.key=certs/gateway.key
+```
+
+In this case, use the `apicast-template-tls.yaml` for deploying the gateway because it does more:
+
+* mounts the above `Secret`(s) as volumes in the Pod where the gateway is running
+* creates volume mounts in the gateway container
+* expose the gateway on an HTTPS port (8443) setting `APICAST_HTTPS_PORT` env var and specifies the path to certificate and key to use through `APICAST_HTTPS_CERTIFICATE` and `APICAST_HTTPS_CERTIFICATE_KEY` env vars.
+* expose the gateway outside OpenShit through a `Route` which has TLS `passthrough`.
+
+```shell
+oc new-app -f apicast-template-tls.yaml
+```
+
+Finally, doing "Updating 3scale APIcast configuration" is still needed to update gateway with the new route, promoting the configuration to production and finally restart the gateway Pod for getting such a configuration.
 
 # Adding authentication
 

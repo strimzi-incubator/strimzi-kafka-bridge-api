@@ -66,6 +66,13 @@ First of all it's needed to change the deployment mode of the APIcast as "self-m
 ## Adding policies chain
 
 In order to have the 3scale APIcast working with the bridge there are a few policies that has to be configured available in the `policies_config.json` file.
+More information about the policies [here](policies.md).
+
+As described in the related policies page, you should:
+
+* remove/disable the anonymous access policy if you need authentication
+* remove/disable the routing and URL rewriting policies if you have just one bridge instance behind the gateway
+* tuning the routing policy if you have more than one bridge instance
 
 ```shell
 curl -X PUT "https://$PORTAL_ENDPOINT/admin/api/services/$SERVICE_ID/proxy/policies.json" --data "access_token=$TOKEN" --data-urlencode policies_config@policies_config.json

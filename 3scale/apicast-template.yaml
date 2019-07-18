@@ -14,7 +14,7 @@ objects:
   metadata:
     name: "${APICAST_NAME}"
   spec:
-    replicas: 2
+    replicas: 1
     selector:
       deploymentconfig: "${APICAST_NAME}"
     strategy:
@@ -100,6 +100,17 @@ objects:
       targetPort: 8090
     selector:
       deploymentconfig: "${APICAST_NAME}"
+
+- apiVersion: v1
+  kind: Route
+  metadata:
+    name: "${APICAST_NAME}"
+  spec:
+    to:
+      kind: Service
+      name: "${APICAST_NAME}"
+    port:
+      targetPort: proxy
 
 parameters:
 - description: "Name of the secret containing the THREESCALE_PORTAL_ENDPOINT with the access-token or provider key"

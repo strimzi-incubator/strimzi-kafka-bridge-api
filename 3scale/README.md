@@ -40,7 +40,7 @@ The `host` field which is the OpenShift Service name used to reach the bridge fr
 It's going to be the "Private Base URL" for the 3scale APIcast configuration. 
 
 ```json
-"host": "my-bridge-bridge-service",
+"host": "my-bridge-bridge-service:8080",
 ```
 
 Import the OpenAPI v2 specification with the 3scale toolbox.
@@ -103,12 +103,6 @@ Then the gateway can be deployed using the following `Template`.
 oc new-app -f apicast-template.yml
 ```
 
-Finally, in order to access the 3scale APIcast from outside the cluster, it's needed to expose it through a `Route`.
-
-```shell
-oc expose svc/apicast --name=apicast
-```
-
 ## Updating 3scale APIcast configuration
 
 The exposed route has to be set as the staging and production public base URL in the 3scale APIcast configuration on the API manager.
@@ -134,7 +128,7 @@ At this point the 3scale gateway Pod should be restarted to get the new configur
 
 ```shell
 oc scale --replicas=0 deploymentconfig/apicast
-oc scale --replicas=2 deploymentconfig/apicast
+oc scale --replicas=1 deploymentconfig/apicast
 ```
 
 Instead, it's possible to change `APICAST_CONFIGURATION_CACHE` and `APICAST_CONFIGURATION_LOADER` parameter in order to specify the policy applied by the gateway to update the configuration.
@@ -166,7 +160,18 @@ Finally, doing "Updating 3scale APIcast configuration" is still needed to update
 
 # Adding authentication
 
-TBD
+3scale API management system provides different authentication modes:
+
+* API Key (actually user_key): the application is identified and authenticated via a single string.
+* App_ID and App_Key pair: the application is identified via the App_ID and authenticated via the App_Key.
+* OpenID Connect: use OpenID Connect for any OAuth 2.0 flow.
+
+The first thing to do is enabling the authentication mode to use through the 3scale toolbox updating the service.
+The `-a` parameter (authentication mode) allows to do that with `1` for API key, `2` for App Id / App Key, `oidc` for OpenID Connect).
+
+```shell
+3scale service apply $REMOTE_NAME $SERVICE_ID -a 1
+```
 
 # Remove
 

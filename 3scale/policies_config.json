@@ -14,25 +14,25 @@
         "configuration": {
             "request": [
                 {
-                    "op": "set",
+                    "op": "push",
                     "header": "X-Forwarded-Host",
                     "value_type": "liquid",
                     "value": "{{ host }}:{{ server_port }}"
                 },
                 {
-                    "op": "set",
+                    "op": "push",
                     "header": "X-Forwarded-Proto",
                     "value_type": "liquid",
                     "value": "{{ scheme }}"
                 },
                 {
-                    "op": "set",
+                    "op": "push",
                     "header": "Forwarded",
                     "value_type": "liquid",
                     "value": "host={{ host }}:{{ server_port }};proto={{ scheme }}"
                 },
                 {
-                    "op": "set",
+                    "op": "push",
                     "header": "X-Forwarded-Path",
                     "value_type": "liquid",
                     "value": "{{ uri }}"

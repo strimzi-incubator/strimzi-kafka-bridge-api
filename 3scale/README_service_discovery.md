@@ -62,6 +62,24 @@ If running on `minishift` and you want to access the 3scale admin portal, the ga
 
 # Deploying Strimzi, the Apache Kafka cluster and the bridge
 
+The cluster operator has to be enabled to set 3scale labels and annotations on the HTTP bridge service so that it is discoverable by the 3scale service discovery.
+To do so, check that the following environment variables are set in the cluster operator deployment:
+
+```yaml
+...
+env:
+- name: STRIMZI_CUSTOM_KAFKA_BRIDGE_SERVICE_LABELS
+    value: |
+    discovery.3scale.net=true
+- name: STRIMZI_CUSTOM_KAFKA_BRIDGE_SERVICE_ANNOTATIONS
+    value: |
+    discovery.3scale.net/scheme=http
+    discovery.3scale.net/port=8080
+    discovery.3scale.net/path=/
+    discovery.3scale.net/description-path=/openapi
+...
+```
+
 Just run the following command from the Strimzi release folder.
 
 ```shell
@@ -82,16 +100,16 @@ Setting some environment variables is useful for the following command to run fo
 
 ```shell
 export REMOTE_NAME=strimzi-kafka-bridge
-export SYSTEM_NAME=strimzi_http_bridge_for_apache_kafka
-export TENANT=strimzi-kafka-bridge-admin
-export PORTAL_ENDPOINT=$TENANT.3scale.net
+export SYSTEM_NAME=myproject-my-bridge-bridge-service
+export TENANT=3scale-admin
+export PORTAL_ENDPOINT=$TENANT.example.com
 export TOKEN=<3scale access token>
 ```
 
 Configure the remote for the 3scale toolbox.
 
 ```shell
-3scale remote add $REMOTE_NAME https://$TOKEN@$PORTAL_ENDPOINT/
+3scale remote add -k $REMOTE_NAME https://$TOKEN@$PORTAL_ENDPOINT/
 ```
 
 # Adding bridge API
@@ -109,7 +127,7 @@ Before that, update the "host" field with the current Private Base URL (my-bridg
 In order to make further configuration, using the 3scale toolbox or an HTTP client (i.e. cURL) for accessing to 3scale API management direclty, the "id" for the service created right now is needed.
 
 ```shell
-export SERVICE_ID=$(curl -s -X GET "https://$PORTAL_ENDPOINT/admin/api/services.json?access_token=$TOKEN" | jq ".services[] | select(.service.system_name | contains(\"$SYSTEM_NAME\")) | .service.id")
+export SERVICE_ID=$(curl -k -s -X GET "https://$PORTAL_ENDPOINT/admin/api/services.json?access_token=$TOKEN" | jq ".services[] | select(.service.system_name | contains(\"$SYSTEM_NAME\")) | .service.id")
 ```
 
 Last step is about importing the policies.

@@ -13,44 +13,32 @@ In case of `minishift`, it needs at least 4 cpus and 8 GB of RAM.
 minishift start --cpus 4 --memory 8GB
 ```
 
-Login as a user with admin rights, in order to enable wildcard routes and for Strimzi in order to create the CRDs.
+Login as a user with admin rights, in order to allow Strimzi to create the CRDs (following the manual installation will be used).
 
 ```shell
 oc login -u system:admin
 ```
 
-Enable wildcard routes on OpenShift.
+The 3scale deployment uses the new Red Hat registry which needs authentication.
+The template will use a Secret named `threescale-registry-auth` for getting the credentials to authenticate against the registry.
+You can create this secret as described  in the 3scale doc [here](https://access.redhat.com/documentation/en-us/red_hat_3scale_api_management/2.6/html/installing_3scale/onpremises-installation#deploying-threescale-on-openshift-using-a-template) or downloading such a Secret from the Red Hat customer portal in the "Registry Service Accounts" section (after creating a new service account).
 
-> More info [here](https://access.redhat.com/solutions/3697871) and [here](https://access.redhat.com/documentation/en-us/openshift_container_platform/3.9/html/installation_and_configuration/setting-up-a-router#using-wildcard-routes)
-
-```shell
-oc project default
-
-oc adm router --replicas=0
-oc set env dc/router ROUTER_ALLOW_WILDCARD_ROUTES=true
-oc scale dc/router --replicas=1
-
-oc project myproject
-```
-
-Deploy the 3scale API management using the template provided by the `amp.yml` file.
-It's a hacked version of this [one](https://raw.githubusercontent.com/3scale/3scale-amp-openshift-templates/master/amp/amp.yml) for using the latest apicast gateway with the fixes needed for having the integration working.
+Deploy the 3scale API management using the 3scale 2.6 template.
 
 ```shell
-oc new-app -f amp.yml --param WILDCARD_DOMAIN=example.com --param WILDCARD_POLICY=Subdomain --param ADMIN_PASSWORD=admin --param ADMIN_ACCESS_TOKEN=mytoken
+oc new-app -f https://raw.githubusercontent.com/3scale/3scale-amp-openshift-templates/2.6-stable/amp/amp.yml --param WILDCARD_DOMAIN=example.com --param ADMIN_PASSWORD=admin --param ADMIN_ACCESS_TOKEN=mytoken
 ```
 
 Grant 3scale discovery to view the services in order to discover them for the creation.
 
 ```shell
-oc adm policy add-cluster-role-to-user view system:serviceaccount:myproject:default
+oc adm policy add-cluster-role-to-user view system:serviceaccount:myproject:amp
 ```
 
 If running on `minishift` and you want to access the 3scale admin portal, the gateway and all the other stuff from outside, it's needed to update the `/etc/hosts` accordingly, for example:
 
 ```shell
 192.168.42.233 api-3scale-apicast-production.example.com
-192.168.42.233 apicast-wildcard.example.com
 192.168.42.233 api-3scale-apicast-staging.example.com
 192.168.42.233 3scale.example.com
 192.168.42.233 master.example.com

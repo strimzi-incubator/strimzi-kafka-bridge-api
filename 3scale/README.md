@@ -46,9 +46,11 @@ For 3scale deployment to Kubernetes:
         discovery.3scale.net/scheme=http
         discovery.3scale.net/port=8080
         discovery.3scale.net/path=/
-        discovery.3scale.net/description-path=/openapi
+        discovery.3scale.net/description-path=/openapi/v3
     #...
     ````
+    
+    **NOTE:** The `/openapi` endpoint will represent OpenAPI v3 once support for OpenAPI v2 is deprecated in the Kafka Bridge. At that time, the `/openapi/v3` endpoint will be removed.
 
     If necessary, update these properties.
 

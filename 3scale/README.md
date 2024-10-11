@@ -50,7 +50,7 @@ For 3scale deployment to Kubernetes:
     #...
     ````
     
-    **NOTE:** The `/openapi` endpoint will represent OpenAPI v3 once support for OpenAPI v2 is deprecated in the Kafka Bridge. At that time, the `/openapi/v3` endpoint will be removed.
+    **NOTE:** The `/openapi` endpoint will represent OpenAPI v3 once support for OpenAPI v2 is removed from the Kafka Bridge. At that time, the `/openapi/v3` endpoint will be removed.
 
     If necessary, update these properties.
 

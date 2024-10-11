@@ -1,6 +1,8 @@
 [3scaledoc]: https://docs.redhat.com/en/documentation/red_hat_3scale_api_management "3scale documentation"
 
-# Requirements
+# Deploying 3scale for the Kafka Bridge
+
+## Requirements
 
 * Familiarity with 3scale components.
 * Strimzi and Kafka are deployed. 
@@ -13,7 +15,7 @@ For 3scale deployment to Kubernetes:
     * Kafka Bridge [openapi.json](openapi.json) v3.
     * Header modification and routing policies for Kafka Bridge: [policies_config.json](policies_config.json).
 
-# Procedure
+## Procedure
 
 1. Set up 3scale API Management as outlined in the [3scale documentation][3scaledoc].
 
